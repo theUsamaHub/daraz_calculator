@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz Pakistan Price Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 span {
+            background: #f0ad4e;
+            color: white;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-field {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-field input[type="range"] {
+            padding: 0;
+            height: 8px;
+            background: #e0e0e0;
+            border: none;
+        }
+
+        .profit-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .profit-display .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .profit-display .value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .sub-value {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .fees-breakdown {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .fees-breakdown h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .fee-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .fee-item:last-child {
+            border-bottom: none;
+        }
+
+        .fee-item .fee-name {
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fee-item .fee-name .percentage {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .fee-item .fee-amount {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .fee-item.total {
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .fee-item.total .fee-amount {
+            color: #f5576c;
+            font-size: 18px;
+        }
+
+        .discount-table {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .profit-badge {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .loss-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer ul {
+            margin-left: 20px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .calculator {
+                padding: 20px;
+            }
+            
+            .stat-card .value {
+                font-size: 28px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .profit-display {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <h1>
+                📊 Daraz Pakistan Price Calculator
+                <span>v2.0</span>
+            </h1>
+            <div class="subtitle">Based on actual fee structure: 35.8% total deductions from final price</div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>📦 Wholesale / Cost Price (PKR)</label>
+                        <input type="number" id="costPrice" value="500" min="1" step="1">
+                    </div>
+                    <div class="input-field">
+                        <label>💰 Desired Profit Margin (%)</label>
+                        <input type="range" id="profitRange" min="5" max="50" value="20" step="1">
+                        <input type="number" id="profitPercent" value="20" min="5" max="50" step="1" style="margin-top: 10px;">
+                    </div>
+                    <div class="profit-display">
+                        <div class="label">Target Profit</div>
+                        <div class="value" id="targetProfit">PKR 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">💰 Final Selling Price</div>
+                    <div class="value" id="finalPrice">PKR 0</div>
+                    <div class="sub-value" id="priceAfterDiscount">After all discounts</div>
+                </div>
+                <div class="stat-card primary">
+                    <div class="label">💸 Daraz Total Fees</div>
+                    <div class="value" id="totalFees">PKR 0</div>
+                    <div class="sub-value" id="feesPercentage">35.8% of final price</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">📈 Your Net Profit</div>
+                    <div class="value" id="netProfit">PKR 0</div>
+                    <div class="sub-value" id="profitPercentage">0% margin</div>
+                </div>
+            </div>
+
+            <div class="fees-breakdown">
+                <h3>📋 Detailed Fee Breakdown</h3>
+                <div id="feeBreakdown">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+
+            <div class="warning" id="profitWarning" style="display: none;">
+                ⚠️ Warning: This profit margin is not achievable with current fee structure!
+            </div>
+
+            <h3 style="margin-bottom: 15px;">📊 Price Options for Different Margins</h3>
+            <div class="discount-table">
+                <table id="priceTable">
+                    <thead>
+                        <tr>
+                            <th>Profit Margin</th>
+                            <th>Final Price</th>
+                            <th>Daraz Fees</th>
+                            <th>Your Profit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="margin: 30px 0 15px;">🏷️ Listing Prices (with Discounts)</h3>
+            <div class="discount-table">
+                <table id="listingTable">
+                    <thead>
+                        <tr>
+                            <th>Discount %</th>
+                            <th>Listing Price</th>
+                            <th>Buyer Pays</th>
+                            <th>Your Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listingBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="footer">
+                <p><strong>📌 Important Notes:</strong></p>
+                <ul>
+                    <li>These calculations are based on your actual order data with 35.8% total fees</li>
+                    <li>Final price means the price AFTER all discounts (what buyer actually pays)</li>
+                    <li>Listing price should be higher if you plan to offer discounts</li>
+                    <li>Shipping costs may vary - adjust if your shipping differs from PKR 17.25 average</li>
+                    <li>Update fee percentages if Daraz changes their structure</li>
+                </ul>
+                <p style="margin-top: 15px; color: #999; font-size: 12px; text-align: center;">© 2026 Daraz Seller Tools | Based on actual transaction data</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fee structure from your data
+        const FEES = {
+            commission: { name: 'Commission + VAT', percent: 16.67 },
+            handling: { name: 'Handling Fee', percent: 2.69 },
+            payment: { name: 'Payment Fee', percent: 2.59 },
+            tax: { name: 'Income Tax Withholding', percent: 0.94 },
+            voucher: { name: 'Co-funded Voucher', percent: 2.00 },
+            shippingPromo: { name: 'Free Shipping Promo', percent: 6.90 },
+            shippingNet: { name: 'Net Shipping Cost', percent: 4.04 }
+        };
+        
+        const TOTAL_FEE_PERCENT = 35.8;
+
+        // Get DOM elements
+        const costInput = document.getElementById('costPrice');
+        const profitRange = document.getElementById('profitRange');
+        const profitPercent = document.getElementById('profitPercent');
+        const targetProfit = document.getElementById('targetProfit');
+        const finalPrice = document.getElementById('finalPrice');
+        const totalFees = document.getElementById('totalFees');
+        const feesPercentage = document.getElementById('feesPercentage');
+        const netProfit = document.getElementById('netProfit');
+        const profitPercentage = document.getElementById('profitPercentage');
+        const feeBreakdown = document.getElementById('feeBreakdown');
+        const tableBody = document.getElementById('tableBody');
+        const listingBody = document.getElementById('listingBody');
+        const profitWarning = document.getElementById('profitWarning');
+
+        // Update profit percent when range changes
+        profitRange.addEventListener('input', function() {
+            profitPercent.value = this.value;
+            calculateAll();
+        });
+
+        profitPercent.addEventListener('input', function() {
+            let value = parseInt(this.value) || 20;
+            value = Math.min(50, Math.max(5, value));
+            this.value = value;
+            profitRange.value = value;
+            calculateAll();
+        });
+
+        costInput.addEventListener('input', calculateAll);
+
+        function calculateAll() {
+            const cost = parseFloat(costInput.value) || 0;
+            const desiredProfitPercent = parseFloat(profitPercent.value) / 100;
+            
+            // Calculate final price
+            // Formula: Final Price = Cost / (0.642 - Desired Profit%)
+            let final, fees, profit;
+            
+            if (desiredProfitPercent >= 0.642) {
+                // Not achievable
+                final = Infinity;
+                fees = Infinity;
+                profit = Infinity;
+                profitWarning.style.display = 'block';
+            } else {
+                final = cost / (0.642 - desiredProfitPercent);
+                fees = final * (TOTAL_FEE_PERCENT / 100);
+                profit = final - cost - fees;
+                profitWarning.style.display = 'none';
+            }
+            
+            // Update main stats
+            if (final === Infinity) {
+                finalPrice.textContent = 'Not achievable';
+                totalFees.textContent = 'N/A';
+                netProfit.textContent = 'N/A';
+                profitPercentage.textContent = 'N/A';
+                targetProfit.textContent = 'PKR 0';
+            } else {
+                finalPrice.textContent = `PKR ${formatNumber(final)}`;
+                totalFees.textContent = `PKR ${formatNumber(fees)}`;
+                netProfit.textContent = `PKR ${formatNumber(profit)}`;
+                profitPercentage.textContent = `${((profit/final)*100).toFixed(1)}% margin`;
+                targetProfit.textContent = `PKR ${formatNumber(profit)}`;
+            }
+            
+            // Update fee breakdown
+            updateFeeBreakdown(final, fees);
+            
+            // Update price table
+            updatePriceTable(cost);
+            
+            // Update listing table
+            updateListingTable(cost, final);
+        }
+
+        function updateFeeBreakdown(final, totalFees) {
+            if (final === Infinity) {
+                feeBreakdown.innerHTML = '<div class="fee-item"><span>Cannot calculate with this profit margin</span></div>';
+                return;
+            }
+            
+            let html = '';
+            let runningTotal = 0;
+            
+            for (let [key, fee] of Object.entries(FEES)) {
+                const amount = final * (fee.percent / 100);
+                runningTotal += amount;
+                html += `
+                    <div class="fee-item">
+                        <span class="fee-name">
+                            ${fee.name}
+                            <span class="percentage">(${fee.percent}%)</span>
+                        </span>
+                        <span class="fee-amount">PKR ${formatNumber(amount)}</span>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="fee-item total">
+                    <span class="fee-name">TOTAL DARAZ CUT</span>
+                    <span class="fee-amount">PKR ${formatNumber(runningTotal)}</span>
+                </div>
+            `;
+            
+            feeBreakdown.innerHTML = html;
+        }
+
+        function updatePriceTable(cost) {
+            const margins = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+            let html = '';
+            
+            for (let margin of margins) {
+                const profitDecimal = margin / 100;
+                
+                if (profitDecimal >= 0.642) {
+                    html += `
+                        <tr>
+                            <td>${margin}%</td>
+                            <td colspan="4" style="color: #dc3545;">Not achievable (margin too high)</td>
+                        </tr>
+                    `;
+                } else {
+                    const final = cost / (0.642 - profitDecimal);
+                    const fees = final * (TOTAL_FEE_PERCENT / 100);
+                    const profit = final - cost - fees;
+                    const status = profit > 0 ? 
+                        '<span class="profit-badge">Profitable</span>' : 
+                        '<span class="loss-badge">Loss</span>';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${margin}%</strong></td>
+                            <td>PKR ${formatNumber(final)}</td>
+                            <td>PKR ${formatNumber(fees)}</td>
+                            <td>PKR ${formatNumber(profit)}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            tableBody.innerHTML = html;
+        }
+
+        function updateListingTable(cost, basePrice) {
+            if (basePrice === Infinity) {
+                listingBody.innerHTML = '<tr><td colspan="4">Select an achievable profit margin first</td></tr>';
+                return;
+            }
+            
+            const discounts = [0, 5, 10, 15, 20, 25, 30, 35, 40];
+            let html = '';
+            
+            for (let discount of discounts) {
+                const discountDecimal = discount / 100;
+                let listingPrice;
+                
+                if (discount === 0) {
+                    listingPrice = basePrice;
+                } else {
+                    listingPrice = basePrice / (1 - discountDecimal);
+                }
+                
+                // Calculate profit if sold at this listing with discount
+                const finalAfterDiscount = listingPrice * (1 - discountDecimal);
+                const fees = finalAfterDiscount * (TOTAL_FEE_PERCENT / 100);
+                const profit = finalAfterDiscount - cost - fees;
+                
+                html += `
+                    <tr>
+                        <td>${discount}%</td>
+                        <td>PKR ${formatNumber(listingPrice)}</td>
+                        <td>PKR ${formatNumber(finalAfterDiscount)}</td>
+                        <td>PKR ${formatNumber(profit)} (${((profit/finalAfterDiscount)*100).toFixed(1)}%)</td>
+                    </tr>
+                `;
+            }
+            
+            listingBody.innerHTML = html;
+        }
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('en-PK');
+        }
+        // Initialize
+        calculateAll();
+    </script>
+</body>
+</html>
